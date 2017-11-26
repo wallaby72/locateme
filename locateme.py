@@ -11,7 +11,9 @@ from boto3.dynamodb.conditions import Key, Attr # To allow scan of DynamoDB
 ########################################################
 #Read in Application Settings from Config File
 parser = SafeConfigParser()
-parser.read('locateme.cfg')
+
+parser.read('/home/pi/Project/live/locateme/locateme.cfg')
+installDir = parser.get('settings', 'installdir')
 deviceLocation = parser.get('settings', 'location')
 BUCKET = parser.get('settings', 'BUCKET')
 KEY = parser.get('settings', 'KEY')
@@ -23,14 +25,16 @@ pollyVoice = parser.get('settings', 'pollyvoice')
 logging.basicConfig(filename='/var/log/locateme.log',
     format='%(asctime)s %(message)s',
     level=logging.DEBUG)
-logging.info('Logging set up')
+logging.info('###########################################################################\n                        Logging Starting')
 
+#######################
 ########################################################
 # Take photo
 camera = picamera.PiCamera()
 camera.resolution = (1640, 1232)
 #camera.resolution = (1280, 720)
-camera.capture('/home/pi/Project/locateme/' + 'photo.jpg')
+#camera.capture('/home/pi/Project/live/locateme/' + 'photo.jpg')
+camera.capture(installDir + '/photo.jpg')
 logging.info('Photo taken')
 
 ########################################################
@@ -41,7 +45,8 @@ s3 = boto3.client('s3')
 
 # Uploads the given file using a managed uploader, which will split up large
 # files automatically and upload parts in parallel.
-s3.upload_file('/home/pi/Project/locateme/photo.jpg', BUCKET, 'photo.jpg')
+#s3.upload_file('/home/pi/Project/live/locateme/photo.jpg', BUCKET, 'photo.jpg')
+s3.upload_file(installDir + '/photo.jpg', BUCKET, 'photo.jpg')
 logging.info('Photo uploaded to S3')
 
 ########################################################
@@ -95,13 +100,15 @@ resp = polly.synthesize_speech(OutputFormat='mp3',
 logging.info('AWS Polly request sent')
 		
 thebytes = resp['AudioStream'].read()
-thefile = open('/home/pi/Project/locateme/output.mp3', 'wb')
+#thefile = open('/home/pi/Project/live/locateme/output.mp3', 'wb')
+thefile = open(installDir + '/output.mp3', 'wb')
 thefile.write(thebytes)
 thefile.close()
 logging.info('mp3 file created from AWS Polly response')
 
 #Play the generated speech from AWS Polly
-os.system('mpg321 /home/pi/Project/locateme/output.mp3')
+#os.system('mpg321 /home/pi/Project/live/locateme/output.mp3')
+os.system('mpg321 ' + installDir + '/output.mp3')
 logging.info('mp3 file played')
 
 ########################################################
@@ -214,11 +221,13 @@ resp = polly.synthesize_speech(OutputFormat='mp3',
 logging.info('AWS Polly request sent')
 		
 thebytes = resp['AudioStream'].read()
-thefile = open('/home/pi/Project/locateme/output_emotion.mp3', 'wb')
+thefile = open('/home/pi/Project/live/locateme/output_emotion.mp3', 'wb')
+thefile = open(installDir + '/output_emotion.mp3', 'wb')
 thefile.write(thebytes)
 thefile.close()
 logging.info('mp3 file created from AWS Polly response')
 
 #Play the generated speech from AWS Polly
-os.system('mpg321 /home/pi/Project/locateme/output_emotion.mp3')
+#os.system('mpg321 /home/pi/Project/live/locateme/output_emotion.mp3')
+os.system('mpg321 ' + installDir + '/output_emotion.mp3')
 logging.info('mp3 file played')
