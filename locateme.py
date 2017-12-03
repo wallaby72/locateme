@@ -221,7 +221,7 @@ resp = polly.synthesize_speech(OutputFormat='mp3',
 logging.info('AWS Polly request sent')
 		
 thebytes = resp['AudioStream'].read()
-thefile = open('/home/pi/Project/live/locateme/output_emotion.mp3', 'wb')
+#thefile = open('/home/pi/Project/live/locateme/output_emotion.mp3', 'wb')
 thefile = open(installDir + '/output_emotion.mp3', 'wb')
 thefile.write(thebytes)
 thefile.close()
